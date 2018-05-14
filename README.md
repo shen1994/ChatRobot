@@ -13,7 +13,7 @@
   私人地址: 链接: <https://pan.baidu.com/s/1ypoEgf6ITjcNalzTRtnvmw> 密码: uot8  
 
 ## 3. 参考链接  
-* seq2seq讲解: <https://blog.csdn.net/sinat_26917383/article/details/75050225>  
+* seq2seq讲解: <http://jacoxu.com/encoder_decoder>  
 * seq2seq论文地址: <https://arxiv.org/abs/1409.3215>  
 * seq2seq+attention论文地址: <https://arxiv.org/abs/1409.0473>  
 * seq2seq源码: <https://github.com/farizrahman4u/seq2seq>  
