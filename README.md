@@ -16,6 +16,7 @@
 * seq2seq讲解: <http://jacoxu.com/encoder_decoder>  
 * seq2seq论文地址: <https://arxiv.org/abs/1409.3215>  
 * seq2seq+attention论文地址: <https://arxiv.org/abs/1409.0473>  
+* ChatRobot启发论文: <https://arxiv.org/abs/1503.02364>  
 * seq2seq源码: <https://github.com/farizrahman4u/seq2seq>  
 * seq2seq源码需求: <https://github.com/farizrahman4u/recurrentshop>  
 
