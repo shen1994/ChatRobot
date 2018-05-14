@@ -9,6 +9,8 @@
 ## 1. 效果展示  
 
 ## 2. 软件安装  
+* 模型搭建第三方库Keras-2.1.6.tar.gz  
+  私人地址: 链接: <https://pan.baidu.com/s/1ypoEgf6ITjcNalzTRtnvmw> 密码: uot8  
 
 ## 3. 参考链接  
 * seq2seq讲解: <https://blog.csdn.net/sinat_26917383/article/details/75050225>  
