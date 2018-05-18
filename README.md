@@ -19,4 +19,5 @@
 * ChatRobot启发论文: <https://arxiv.org/abs/1503.02364>  
 * seq2seq源码: <https://github.com/farizrahman4u/seq2seq>  
 * seq2seq源码需求: <https://github.com/farizrahman4u/recurrentshop>  
-
+* beamsearch源码参考: <https://github.com/yanwii/seq2seq>  
+* bucket源码参考: <https://github.com/1228337123/tensorflow-seq2seq-chatbot-zh>  
