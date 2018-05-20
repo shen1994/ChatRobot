@@ -53,7 +53,7 @@ class WordCut:
             
         test_array = pad_sequences(new_text_list, maxlen=maxlen)
         
-        test_pred = model.predict(test_array, verbose=1)
+        test_pred = model.predict(test_array, verbose=0)
         
         label_list = np.argmax(test_pred,axis=2)
         
