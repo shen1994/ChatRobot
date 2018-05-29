@@ -63,7 +63,7 @@ def predict_text(model, enc_embedding):
                 else:
                     norm_dec_vec = (dec_vec_model.wv[dec_word] - np.mean(dec_vec_model.wv[dec_word])) / std_number
                 err = np.square(norm_dec_vec - vec)
-                mse = np.sum(err) / len(err)
+                mse = np.sum(err)
                 dec_dis_list.append(mse)
             index_list = np.argsort(dec_dis_list)
             index = index_list[1]
@@ -82,9 +82,9 @@ def run():
     
     model.load_weights("model/seq2seq_model_weights.h5")
     
-    text = u"我真的好喜欢你，你认为呢？"
+    text = [u"我真的好喜欢你，你认为呢？"]
 
-    enc_padding_ids = data_to_padding_ids([text])
+    enc_padding_ids = data_to_padding_ids(text)
     
     prediction_words = predict_text(model, enc_padding_ids)
     
