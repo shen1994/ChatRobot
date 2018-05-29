@@ -1,10 +1,10 @@
 # ChatRobot
 
 ## 0. 特别提醒  
-* 关于keras环境下seq2seq错误修改  
+> * 关于keras环境下seq2seq错误修改  
   ('_OptionalInputPlaceHolder' object has no attribute 'inbound_nodes')  
-* 0.0 使用keras2.1.0版本的第三方库(不推荐)  
-* 0.1 将recurrentshop\engine.py文件中837和842行中inbound_nodes更改为_inbound_nodes  
+> * 0.0 使用keras2.1.0版本的第三方库(不推荐)  
+> * 0.1 将recurrentshop\engine.py文件中837和842行中inbound_nodes更改为_inbound_nodes  
 
 ## 1. 效果展示  
 ![image](https://github.com/shen1994/README/raw/master/images/ChatRobot_train.jpg)  
