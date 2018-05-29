@@ -11,8 +11,10 @@
 ![image](https://github.com/shen1994/README/raw/master/images/ChatRobot_predict.jpg)  
 
 ## 2. 软件安装  
-* 模型搭建第三方库Keras-2.1.6.tar.gz  
-  私人地址: 链接: <https://pan.baidu.com/s/1ypoEgf6ITjcNalzTRtnvmw> 密码: uot8  
+> * 模型搭建第三方库Keras-2.1.6.tar.gz  
+    私人地址: 链接: <https://pan.baidu.com/s/1ypoEgf6ITjcNalzTRtnvmw> 密码: uot8  
+> * 微博数据(关于餐饮业,数据未清洗)下载地址  
+    私人地址: 链接: <https://pan.baidu.com/s/1g6l4_IDkLdLAjvrWf5sheQ> 密码: fxy3  
 
 ## 3. 参考链接  
 * seq2seq讲解: <http://jacoxu.com/encoder_decoder>  
