@@ -7,6 +7,8 @@
 * 0.1 将recurrentshop\engine.py文件中837和842行中inbound_nodes更改为_inbound_nodes  
 
 ## 1. 效果展示  
+![image](https://github.com/shen1994/README/raw/master/images/ChatRobot_train.jpg)  
+![image](https://github.com/shen1994/README/raw/master/images/ChatRobot_predict.jpg)  
 
 ## 2. 软件安装  
 * 模型搭建第三方库Keras-2.1.6.tar.gz  
