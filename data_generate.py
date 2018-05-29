@@ -51,14 +51,15 @@ def generate_batch(batch_size=None):
                     word_embedding = np.zeros(data_process.dec_embedding_length)
                 else:
                     word_embedding = np.array([1.0] * data_process.dec_embedding_length)
-
+                
+                # normalization
                 std_number = np.std(word_embedding)
                 if (std_number - data_process.epsilon) < 0:
                     word_embedding_scale = np.zeros(data_process.dec_embedding_length)
                 else:
                     word_embedding_scale = (word_embedding - np.mean(word_embedding)) / std_number
-                target_list.append(word_embedding_scale)
 
+                target_list.append(word_embedding_scale)
     
             X.append(source_list)
             Y.append(target_list)
