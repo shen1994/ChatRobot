@@ -75,55 +75,6 @@ def predict_text(model, enc_embedding):
         prediction_words_list.append(prediction_words)
         
     return prediction_words_list
-    
-def get_real_embedding(text_list):
-    data_process = DataProcess(use_word2cut=True)
-    dec_vocab = data_process.read_vocabulary(data_process.dec_vocab_file)
-    
-    dec_padding_ids_list = []
-
-    for text in text_list:
-    
-        words = data_process.text_cut_object.cut([text.strip()])
-        words_list = words[0].strip().split()
-    
-        dec_ids = [dec_vocab.get(word, data_process.__UNK__) for word in words_list]
-    
-        if len(dec_ids) + 2 > data_process.dec_output_length:
-            dec_ids = dec_ids[:data_process.dec_output_length - 2]
-            
-        dec_length = len(dec_ids)
-    
-        dec_padding_ids = []
-        dec_padding_ids.extend([data_process.__GO__])
-        dec_padding_ids.extend([int(dec_ids[l]) for l in range(dec_length)])
-        dec_padding_ids.extend([data_process.__EOS__])
-        dec_padding_ids.extend([0] * (data_process.dec_output_length - dec_length - 2))
-        
-        dec_padding_ids_list.append(np.array(dec_padding_ids))
-    
-    padding_ids = np.array(dec_padding_ids_list)
-    
-    dec_vec_model = gensim.models.Word2Vec.load(r'model/decoder_vector.m')
-    dec_useful_words = list(dec_vec_model.wv.vocab.keys())
-    dec_reverse_vec = data_process.read_reverse_vocabulary(data_process.dec_vocab_file)
-    
-    all_dec_embedding = []
-    for one_padding_ids in padding_ids:
-    
-        dec_embedding = []
-        for data in one_padding_ids:
-            word = dec_reverse_vec[data]
-            if word in dec_useful_words:
-                word_embedding = dec_vec_model.wv[word]
-            elif word == data_process.__VOCAB__[0]:
-                word_embedding = np.zeros(data_process.dec_embedding_length)
-            else:
-                word_embedding = np.array([1.0] * data_process.dec_embedding_length)
-            dec_embedding.append(word_embedding)
-        all_dec_embedding.append(dec_embedding)
-    
-    return np.array([all_dec_embedding])
 
 def run():
 
