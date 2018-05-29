@@ -12,10 +12,10 @@ from word2cut import WordCut
 
 class DataProcess:
     __PAD__ = 0
-    __GO__ = 1
-    __EOS__ = 2
-    __UNK__ = 3
-    __VOCAB__ = ['__PAD__', '__GO__', '__EOS__', '__UNK__']
+    __UNK__ = 1
+    __GO__ = 2
+    __EOS__ = 3
+    __VOCAB__ = ['__PAD__', '__UNK__', '__GO__', '__EOS__']
 
     def __init__(self, use_word2cut=True):
         
@@ -30,12 +30,13 @@ class DataProcess:
             
         self.enc_vocab_size = 20000
         self.dec_vocab_size = 20000
-        self.enc_input_length = 20
-        self.dec_output_length = 20
-        self.enc_embedding_length = 64
-        self.dec_embedding_length = 64
-        self.hidden_dim = 50
-        self.layer_shape = (1, 1)
+        self.enc_input_length = 50
+        self.dec_output_length = 50
+        self.enc_embedding_length = 128
+        self.dec_embedding_length = 128
+        self.hidden_dim = 100
+        self.layer_shape = (2, 1)
+        self.epsilon = 1e-12
         
         self.enc_file = self.corpus_path + os.sep + "question.txt"
         self.dec_file = self.corpus_path + os.sep + "answer.txt"
@@ -51,7 +52,7 @@ class DataProcess:
         if use_word2cut:
             self.text_cut_object = WordCut()
         
-    def create_vocabulary(self, vocabulary_path, data_path, max_vocabulary_size):
+    def create_vocabulary(self, vocabulary_path, data_path, max_vocabulary_size, mode=False):
         
         vocab = dict()
         vocab_list = list()
@@ -73,8 +74,11 @@ class DataProcess:
                         vocab[word] = 1
                 
                 line = f.readline()
-                
-        vocab_list = self.__VOCAB__ + sorted(vocab, key=vocab.get, reverse=True)
+        
+        if mode:    
+            vocab_list = self.__VOCAB__ + sorted(vocab, key=vocab.get, reverse=True)
+        else:
+            vocab_list = [self.__VOCAB__[0]] + [self.__VOCAB__[1]] + sorted(vocab, key=vocab.get, reverse=True)
                 
         if len(vocab_list) > max_vocabulary_size:
             vocab_list = vocab_list[:max_vocabulary_size]
@@ -199,7 +203,7 @@ class DataProcess:
                 
     def run(self):
         self.create_vocabulary(self.enc_vocab_file, self.enc_file, self.enc_vocab_size)
-        self.create_vocabulary(self.dec_vocab_file, self.dec_file, self.dec_vocab_size)
+        self.create_vocabulary(self.dec_vocab_file, self.dec_file, self.dec_vocab_size, mode=True)
         enc_vocab = self.read_vocabulary(self.enc_vocab_file)
         self.data_to_ids(self.enc_file, self.enc_ids_file, enc_vocab)
         dec_vocab = self.read_vocabulary(self.dec_vocab_file)

@@ -8,131 +8,137 @@ Created on Thu May 17 10:26:42 2018
 import gensim
 import numpy as np
 
-from keras.utils import plot_model
-from seq2seq import AttentionSeq2Seq
+from encoder2decoder import build_model
 from data_process import DataProcess
 
-def data_to_padding_ids(text):
+def data_to_padding_ids(text_list):
+    
     data_process = DataProcess(use_word2cut=True)
-    
-    words = data_process.text_cut_object.cut([text.strip()])
-    words_list = words[0].strip().split()
-    
     enc_vocab = data_process.read_vocabulary(data_process.enc_vocab_file)
     
-    enc_ids = [enc_vocab.get(word, data_process.__UNK__) for word in words_list]
+    enc_padding_ids_list = []
+
+    for text in text_list:
     
-    if len(enc_ids) > data_process.enc_input_length:
-                enc_ids = enc_ids[:data_process.enc_input_length]
+        words = data_process.text_cut_object.cut([text.strip()])
+        words_list = words[0].strip().split()
+    
+        enc_ids = [enc_vocab.get(word, data_process.__UNK__) for word in words_list]
+    
+        if len(enc_ids) > data_process.enc_input_length:
+            enc_ids = enc_ids[:data_process.enc_input_length]
             
-    enc_length = len(enc_ids)
+        enc_length = len(enc_ids)
     
-    enc_padding_ids = []
-    enc_padding_ids.extend([0] * (data_process.enc_input_length - enc_length))
-    enc_padding_ids.extend([int(enc_ids[enc_length - l - 1]) for l in range(enc_length)])
+        enc_padding_ids = []
+        enc_padding_ids.extend([0] * (data_process.enc_input_length - enc_length))
+        enc_padding_ids.extend([int(enc_ids[enc_length - l - 1]) for l in range(enc_length)])
+        
+        enc_padding_ids_list.append(np.array(enc_padding_ids))
     
-    return enc_padding_ids
+    return np.array(enc_padding_ids_list)
     
-def data_to_embedding(enc_padding_ids):
-    
-    data_process = DataProcess(use_word2cut=False)
-    
-    enc_vec_model = gensim.models.Word2Vec.load(r'model/encoder_vector.m')
-    enc_useful_words = list(enc_vec_model.wv.vocab.keys())
-    enc_reverse_vec = data_process.read_reverse_vocabulary(data_process.enc_vocab_file)
-    
-    enc_embedding = []
-    for data in enc_padding_ids:
-        word = enc_reverse_vec[data]
-        if word in enc_useful_words:
-            word_embedding = enc_vec_model.wv[word]
-        elif word == data_process.__VOCAB__[0]:
-            word_embedding = np.zeros(data_process.enc_embedding_length)
-        else:
-            word_embedding = np.random.uniform(-1, 1, data_process.enc_embedding_length)
-        enc_embedding.append(word_embedding)
-    
-    return np.array([enc_embedding])
-    
-def predict_one_text(model, enc_embedding):
+def predict_text(model, enc_embedding):
     
     data_process = DataProcess(use_word2cut=False)
     
     dec_vec_model = gensim.models.Word2Vec.load(r'model/decoder_vector.m')
-    dec_useful_words = list(dec_vec_model.wv.vocab.keys())
+    dec_useful_words = tuple(dec_vec_model.wv.vocab.keys())
     
-    prediction = model.predict(enc_embedding, verbose=0)   
+    prediction = model.predict_on_batch(enc_embedding)
     
-    prediction_words = []
-    for vec in prediction[0]:
-        dec_dis_list = []
-        dec_dis = np.sqrt(np.sum(np.square(np.zeros(data_process.dec_embedding_length) - vec)))
-        dec_dis_list.append(dec_dis)
-        for dec_word in dec_useful_words:
-            dec_dis = np.sqrt(np.sum(np.square(dec_vec_model.wv[dec_word] - vec)))
-            dec_dis_list.append(dec_dis)
-        index = np.argmin(dec_dis_list)
-        if index == 0:
-            word = data_process.__VOCAB__[0]
-        else:
-            word = dec_useful_words[index - 1]
-        prediction_words.append(word)
+    prediction_words_list = []
+    for elem in prediction:
+        prediction_words = []
+        for vec in elem:
+            dec_dis_list = []
+            err = np.square(np.zeros(data_process.dec_embedding_length) - vec)
+            mse = np.sum(err) / len(err)
+            dec_dis_list.append(mse)
+            for dec_word in dec_useful_words:
+
+                std_number = np.std(dec_vec_model.wv[dec_word])
+                if (std_number - data_process.epsilon) < 0:
+                    norm_dec_vec = np.zeros(data_process.dec_embedding_length)
+                else:
+                    norm_dec_vec = (dec_vec_model.wv[dec_word] - np.mean(dec_vec_model.wv[dec_word])) / std_number
+                err = np.square(norm_dec_vec - vec)
+                mse = np.sum(err) / len(err)
+                dec_dis_list.append(mse)
+            index_list = np.argsort(dec_dis_list)
+            index = index_list[1]
+            if index == 0:
+                word = data_process.__VOCAB__[0]
+            else:
+                word = dec_useful_words[index - 1]
+            prediction_words.append(word)
+        prediction_words_list.append(prediction_words)
         
-    return prediction_words
+    return prediction_words_list
+    
+def get_real_embedding(text_list):
+    data_process = DataProcess(use_word2cut=True)
+    dec_vocab = data_process.read_vocabulary(data_process.dec_vocab_file)
+    
+    dec_padding_ids_list = []
+
+    for text in text_list:
+    
+        words = data_process.text_cut_object.cut([text.strip()])
+        words_list = words[0].strip().split()
+    
+        dec_ids = [dec_vocab.get(word, data_process.__UNK__) for word in words_list]
+    
+        if len(dec_ids) + 2 > data_process.dec_output_length:
+            dec_ids = dec_ids[:data_process.dec_output_length - 2]
+            
+        dec_length = len(dec_ids)
+    
+        dec_padding_ids = []
+        dec_padding_ids.extend([data_process.__GO__])
+        dec_padding_ids.extend([int(dec_ids[l]) for l in range(dec_length)])
+        dec_padding_ids.extend([data_process.__EOS__])
+        dec_padding_ids.extend([0] * (data_process.dec_output_length - dec_length - 2))
         
-def print_score(model, enc_embedding):
-    data_process = DataProcess(use_word2cut=False)
+        dec_padding_ids_list.append(np.array(dec_padding_ids))
+    
+    padding_ids = np.array(dec_padding_ids_list)
     
     dec_vec_model = gensim.models.Word2Vec.load(r'model/decoder_vector.m')
     dec_useful_words = list(dec_vec_model.wv.vocab.keys())
-    prediction = model.predict(enc_embedding, verbose=0)
+    dec_reverse_vec = data_process.read_reverse_vocabulary(data_process.dec_vocab_file)
     
-    score_words = []
+    all_dec_embedding = []
+    for one_padding_ids in padding_ids:
     
-    for vec in prediction[0]:
-        dec_sum = 0
-        dec_dis_list = []
-        dec_dis = np.sqrt(np.sum(np.square(np.zeros(data_process.dec_embedding_length) - vec)))
-        dec_dis_list.append(dec_dis)
-        dec_sum += dec_dis
-        for dec_word in dec_useful_words:
-            dec_dis = np.sqrt(np.sum(np.square(dec_vec_model.wv[dec_word] - vec)))
-            dec_dis_list.append(dec_dis)
-            dec_sum += dec_dis
-        score_words.append(dec_dis_list / dec_sum)
+        dec_embedding = []
+        for data in one_padding_ids:
+            word = dec_reverse_vec[data]
+            if word in dec_useful_words:
+                word_embedding = dec_vec_model.wv[word]
+            elif word == data_process.__VOCAB__[0]:
+                word_embedding = np.zeros(data_process.dec_embedding_length)
+            else:
+                word_embedding = np.array([1.0] * data_process.dec_embedding_length)
+            dec_embedding.append(word_embedding)
+        all_dec_embedding.append(dec_embedding)
     
-    print(score_words)
+    return np.array([all_dec_embedding])
 
 def run():
-    
-    data_process = DataProcess(use_word2cut=False)
 
-    input_length = data_process.enc_input_length
-    output_length = data_process.dec_output_length
-    enc_embedding_length = data_process.enc_embedding_length
-    dec_embedding_length = data_process.dec_embedding_length
-    
-    model = AttentionSeq2Seq(output_dim=dec_embedding_length, hidden_dim=data_process.hidden_dim, output_length=output_length, \
-                             input_shape=(input_length, enc_embedding_length), \
-                             batch_size=1, \
-                             depth=data_process.layer_shape)
-
-    model.compile(loss='mse', optimizer='rmsprop')
+    model = build_model(training=False)
     
     model.load_weights("model/seq2seq_model_weights.h5")
     
-    plot_model(model, to_file='model/seq2seq_model_structure.png', show_shapes=True, show_layer_names=True)
-    
-    text = u"碧水照嫩柳，桃花映春色"#u"这围巾要火！"#u"你愿意嫁给我吗？"
+    text = u"我真的好喜欢你，你认为呢？"
 
-    enc_padding_ids = data_to_padding_ids(text)
-    enc_embedding = data_to_embedding(enc_padding_ids)
+    enc_padding_ids = data_to_padding_ids([text])
     
-    prediction_words = predict_one_text(model, enc_embedding)
+    prediction_words = predict_text(model, enc_padding_ids)
     
     print(prediction_words)
     
-    print_score(model, enc_embedding)
-    
 if __name__ == "__main__":
     run()
+    

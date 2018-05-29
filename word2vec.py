@@ -26,8 +26,8 @@ class Sentences:
         else:
             self.embedding_length = data_process.dec_embedding_length
             self.file = data_process.dec_file
-            self.__GO__ = data_process.__VOCAB__[1]
-            self.__EOS__ = data_process.__VOCAB__[2] 
+            self.__GO__ = data_process.__VOCAB__[2]
+            self.__EOS__ = data_process.__VOCAB__[3] 
 
         
     def __iter__(self):
@@ -57,18 +57,18 @@ if __name__ == "__main__":
     
     sentences = Sentences(mode=0)
     model=gensim.models.Word2Vec(sentences, size=sentences.embedding_length, window=5, \
-                                 min_count=1, iter=10, batch_words=10000, workers=4)
+                                 min_count=1, iter=10, workers=4)
     model.save('model/encoder_vector.m')
     
     print("encoder vector has been generated!")
     
     sentences = Sentences(mode=1)
     model=gensim.models.Word2Vec(sentences, size=sentences.embedding_length, window=5, \
-                                 min_count=1, iter=10, batch_words=10000, workers=4)
+                                 min_count=1, iter=10, workers=4)
     model.save('model/decoder_vector.m')
     print("decoder vector has been generated!")
     
-    '''    
+    '''
     # gensim.models.Word2Vec参数说明
     # sentences：可以是一个·ist，对于大语料集，建议使用BrownCorpus,Text8Corpus或·ineSentence构建。
     # sg： 用于设置训练算法，默认为0，对应CBOW算法；sg=1则采用skip-gram算法。

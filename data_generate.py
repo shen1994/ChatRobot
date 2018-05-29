@@ -6,21 +6,18 @@ Created on Tue May 15 22:23:57 2018
 """
 
 import codecs
+import gensim
 import numpy as np
 
 from data_process import DataProcess
 
-def generate_batch(batch_size=None, encoder_file_path=None, decoder_file_path=None, \
-                   encoder_word2vec_model=None, decoder_word2vec_model=None, embedding_shape=None):
-    
-    if not encoder_word2vec_model or not decoder_word2vec_model or not embedding_shape:
-        print(u"未加载中文词向量模型")
-        return
+def generate_batch(batch_size=None):
         
     data_process = DataProcess(use_word2cut=False)
-    enc_reverse_vec = data_process.read_reverse_vocabulary(data_process.enc_vocab_file)
+    
+    
     dec_reverse_vec = data_process.read_reverse_vocabulary(data_process.dec_vocab_file)
-    enc_useful_words = list(encoder_word2vec_model.wv.vocab.keys())
+    decoder_word2vec_model = gensim.models.Word2Vec.load(r'model/decoder_vector.m')
     dec_useful_words = list(decoder_word2vec_model.wv.vocab.keys())
     
     batch_count = 0
@@ -30,8 +27,8 @@ def generate_batch(batch_size=None, encoder_file_path=None, decoder_file_path=No
     
     while True:
         
-        source_index_padding = codecs.open(encoder_file_path, "r", "utf-8")
-        target_index_padding = codecs.open(decoder_file_path, "r", "utf-8")
+        source_index_padding = codecs.open(data_process.enc_ids_padding_file, "r", "utf-8")
+        target_index_padding = codecs.open(data_process.dec_ids_padding_file, "r", "utf-8")
         
         source_line = source_index_padding.readline()
         target_line = target_index_padding.readline()
@@ -42,15 +39,8 @@ def generate_batch(batch_size=None, encoder_file_path=None, decoder_file_path=No
             target_str_list = target_line.strip().split()
             
             source_list = []
-            for data in source_str_list:
-                word = enc_reverse_vec[int(data)]
-                if word in enc_useful_words:
-                    word_embedding = encoder_word2vec_model.wv[word]
-                elif word == data_process.__VOCAB__[0]:
-                    word_embedding = np.zeros(embedding_shape[0])
-                else:
-                    word_embedding = np.random.uniform(-1, 1, embedding_shape[0])
-                source_list.append(word_embedding)
+            for elem in source_str_list:
+                source_list.append(int(elem))
             
             target_list = []
             for data in target_str_list:
@@ -58,10 +48,17 @@ def generate_batch(batch_size=None, encoder_file_path=None, decoder_file_path=No
                 if word in dec_useful_words:
                     word_embedding = decoder_word2vec_model.wv[word]
                 elif word == data_process.__VOCAB__[0]:
-                    word_embedding = np.zeros(embedding_shape[1])
+                    word_embedding = np.zeros(data_process.dec_embedding_length)
                 else:
-                    word_embedding = np.random.uniform(-1, 1, embedding_shape[1])
-                target_list.append(word_embedding)
+                    word_embedding = np.array([1.0] * data_process.dec_embedding_length)
+
+                std_number = np.std(word_embedding)
+                if (std_number - data_process.epsilon) < 0:
+                    word_embedding_scale = np.zeros(data_process.dec_embedding_length)
+                else:
+                    word_embedding_scale = (word_embedding - np.mean(word_embedding)) / std_number
+                target_list.append(word_embedding_scale)
+
     
             X.append(source_list)
             Y.append(target_list)
