@@ -38,3 +38,6 @@
 `python score.py`  
 > * 绘制word2vec向量分布图  
 `python word2vec_plot.py`  
+
+## 5. 更新  
+> * Word2cut模型对陌生词汇的分词未解决,有时间搞定一下
