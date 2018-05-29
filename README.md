@@ -24,3 +24,15 @@
 * seq2seq源码需求: <https://github.com/farizrahman4u/recurrentshop>  
 * beamsearch源码参考: <https://github.com/yanwii/seq2seq>  
 * bucket源码参考: <https://github.com/1228337123/tensorflow-seq2seq-chatbot-zh>  
+
+## 4. 执行命令  
+> * 生成序列文件,将文字编码为数字,不足补零  
+`python data_process.py`  
+> * 生成word2vec向量,包括编码向量和解码向量  
+`python word2vec.py`  
+> * 训练网络  
+`python train.py`  
+> * 测试  
+`python test.py`  
+> * 模型评分  
+`python score.py`  
