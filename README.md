@@ -36,3 +36,5 @@
 `python test.py`  
 > * 模型评分  
 `python score.py`  
+> * 绘制word2vec向量分布图  
+`python word2vec_plot.py`  
