@@ -41,6 +41,8 @@
 `python test.py`  
 > * 模型评分  
 `python score.py`  
+> * 智能问答  
+`python chat_robot.py`  
 > * 绘制word2vec向量分布图  
 `python word2vec_plot.py`  
 
