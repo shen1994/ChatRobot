@@ -7,8 +7,11 @@
 > * 0.1 将recurrentshop\engine.py文件中837和842行中inbound_nodes更改为_inbound_nodes  
 
 ## 1. 效果展示  
+### 1.0 `python train.py`执行效果图  
 ![image](https://github.com/shen1994/README/raw/master/images/ChatRobot_train.jpg)  
+### 1.1 `python test.py`执行效果图  
 ![image](https://github.com/shen1994/README/raw/master/images/ChatRobot_predict.jpg)  
+### 1.2 `python chat_robot.py`执行效果图  
 ![image](https://github.com/shen1994/README/raw/master/images/ChatRobot_chatchat.jpg)  
 
 ## 2. 软件安装  
