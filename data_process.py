@@ -36,7 +36,7 @@ class DataProcess:
         self.dec_embedding_length = 128
         self.hidden_dim = 100
         self.layer_shape = (2, 1)
-        self.epsilon = 1e-12
+        self.epsilon = 1e-6
         
         self.enc_file = self.corpus_path + os.sep + "question.txt"
         self.dec_file = self.corpus_path + os.sep + "answer.txt"
