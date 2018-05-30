@@ -38,6 +38,20 @@ def data_to_padding_ids(text_list):
     
     return np.array(enc_padding_ids_list)
     
+def calculate_mse(src_vec, des_vec):
+    data_process = DataProcess(use_word2cut=False)
+    
+    std_number = np.std(des_vec)
+    if (std_number - data_process.epsilon) < 0:
+        norm_des_vec = np.zeros(data_process.dec_embedding_length)
+    else:
+        norm_des_vec = (des_vec - np.mean(des_vec)) / std_number
+                
+    err = np.square(src_vec - norm_des_vec)
+    mse = np.sum(err)
+    
+    return mse
+    
 def predict_text(model, enc_embedding):
     
     data_process = DataProcess(use_word2cut=False)
@@ -52,23 +66,12 @@ def predict_text(model, enc_embedding):
         prediction_words = []
         for vec in elem:
             dec_dis_list = []
-            err = np.square(np.zeros(data_process.dec_embedding_length) - vec)
-            mse = np.sum(err) / len(err)
+            mse = calculate_mse(vec, np.zeros(data_process.dec_embedding_length))
             dec_dis_list.append(mse)
             for dec_word in dec_useful_words:
-                
-                # normalization
-                std_number = np.std(dec_vec_model.wv[dec_word])
-                if (std_number - data_process.epsilon) < 0:
-                    norm_dec_vec = np.zeros(data_process.dec_embedding_length)
-                else:
-                    norm_dec_vec = (dec_vec_model.wv[dec_word] - np.mean(dec_vec_model.wv[dec_word])) / std_number
-                
-                err = np.square(norm_dec_vec - vec)
-                mse = np.sum(err)
+                mse = calculate_mse(vec, dec_vec_model.wv[dec_word]) 
                 dec_dis_list.append(mse)
-            index_list = np.argsort(dec_dis_list)
-            index = index_list[1]
+            index = np.argmin(dec_dis_list)
             if index == 0:
                 word = data_process.__VOCAB__[0]
             else:
@@ -77,20 +80,30 @@ def predict_text(model, enc_embedding):
         prediction_words_list.append(prediction_words)
         
     return prediction_words_list
-
-def run():
-
+    
+def load_model(model_path):
+    
     model = build_model(training=False)
     
-    model.load_weights("model/seq2seq_model_weights.h5")
+    model.load_weights(model_path)
+    
+    return model
+    
+def common_prediction(model, text):
+
+    padding_ids = data_to_padding_ids(text)
+    
+    words = predict_text(model, padding_ids)
+    
+    return words
+
+def run():
     
     text = [u"我真的好喜欢你，你认为呢？"]
-
-    print(text)
-
-    enc_padding_ids = data_to_padding_ids(text)
     
-    prediction_words = predict_text(model, enc_padding_ids)
+    model = load_model("model/seq2seq_model_weights.h5")
+
+    prediction_words = common_prediction(model, text)
     
     print(prediction_words)
     

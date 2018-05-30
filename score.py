@@ -7,8 +7,9 @@ Created on Tue May 29 20:43:13 2018
 
 import gensim
 import numpy as np
+
 from data_process import DataProcess
-from encoder2decoder import build_model
+from test import load_model
 from test import data_to_padding_ids
 
 def generate_real_embedding(text_list):
@@ -63,8 +64,7 @@ def generate_real_embedding(text_list):
 def run():
     questions = [u"我真的好喜欢你，你认为呢？", u"品尝大董意境菜时兴奋不已，并起身激情拥抱"]
     answers = [u"我也非常喜欢你。", "这个瞬间捕捉得很妙啊。"]
-    model = build_model(training=False)
-    model.load_weights("model/seq2seq_model_weights.h5")
+    model = load_model("model/seq2seq_model_weights.h5")
     enc_padding_ids = data_to_padding_ids(questions)
     prediction_embedding = model.predict_on_batch(enc_padding_ids)
     real_embedding = generate_real_embedding(answers)
