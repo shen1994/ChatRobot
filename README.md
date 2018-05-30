@@ -13,6 +13,8 @@
 ## 2. 软件安装  
 > * 模型搭建第三方库Keras-2.1.6.tar.gz  
     私人地址: 链接: <https://pan.baidu.com/s/1ypoEgf6ITjcNalzTRtnvmw> 密码: uot8  
+> * recurrentshop下载地址: <https://github.com/farizrahman4u/recurrentshop>  
+> * seq2seq 下载地址: <https://github.com/farizrahman4u/seq2seq>  
 > * 微博数据(关于餐饮业,数据未清洗)下载地址  
     私人地址: 链接: <https://pan.baidu.com/s/1g6l4_IDkLdLAjvrWf5sheQ> 密码: fxy3  
 
